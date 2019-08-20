@@ -1,5 +1,7 @@
 package com.microsoft.azure.servicebus.jms;
 
+import static org.junit.Assert.assertEquals;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -35,11 +37,12 @@ public class ConnectionFactoryTests {
             consumer = session.createConsumer(destination);
             producer = session.createProducer(destination);
             
-            TextMessage textMsg = session.createTextMessage("my message.");
+            String testMessage = "my message.";
+            TextMessage textMsg = session.createTextMessage(testMessage);
             producer.send(textMsg);
             javax.jms.Message msg = consumer.receive(2000);
             String receivedText = ((TextMessage) msg).getText();
-            System.out.println("RECEIVED: " + receivedText);
+            assertEquals(testMessage, receivedText);
         } finally {
             consumer.close();
             producer.close();
