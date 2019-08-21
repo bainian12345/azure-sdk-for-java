@@ -10,26 +10,28 @@ import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 public class SBJmsConnectionFactory implements ConnectionFactory {
     private JmsConnectionFactory factory;
 
-    private SBJmsConnectionFactory(String sasKeyName, String sasKey, String host) {
+    private SBJmsConnectionFactory(String sasKeyName, String sasKey, String host, ServiceBusJmsConnectionFactorySettings settings) {
         if (sasKeyName == null || sasKeyName == null || host == null) {
             throw new IllegalArgumentException("SAS Key, SAS KeyName and the host cannot be null for a ServiceBus connection factory.");
         }
         
-        this.factory = new JmsConnectionFactory(sasKeyName, sasKey, "amqps://" + host + "?amqp.idleTimeout=120000&amqp.traceFrames=true");
+        String query = (settings == null) ? "" : settings.toQuery();
+        this.factory = new JmsConnectionFactory(sasKeyName, sasKey, "amqps://" + host + query);
     }
     
-    public static ConnectionFactory create(String connectionString) {
-        return create(new ConnectionStringBuilder(connectionString));
+    public static ConnectionFactory create(String connectionString, ServiceBusJmsConnectionFactorySettings settings) {
+        return create(new ConnectionStringBuilder(connectionString), settings);
     }
     
-    public static ConnectionFactory create(ConnectionStringBuilder connectionStringBuilder) {
+    public static ConnectionFactory create(ConnectionStringBuilder connectionStringBuilder, ServiceBusJmsConnectionFactorySettings settings) {
         if (connectionStringBuilder == null || connectionStringBuilder.getEndpoint() == null) {
             throw new IllegalArgumentException("The ConnectionStringBuilder or its connection string is invalid.");
         }
         return new SBJmsConnectionFactory(
                 connectionStringBuilder.getSasKeyName(),
                 connectionStringBuilder.getSasKey(),
-                connectionStringBuilder.getEndpoint().getHost());
+                connectionStringBuilder.getEndpoint().getHost(),
+                settings);
     }
     
     @Override

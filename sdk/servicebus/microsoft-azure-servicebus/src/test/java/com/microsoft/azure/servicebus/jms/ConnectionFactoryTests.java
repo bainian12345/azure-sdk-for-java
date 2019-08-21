@@ -28,7 +28,8 @@ public class ConnectionFactoryTests {
         try {
             String connectionString = TestUtils.getNamespaceConnectionString();
             ConnectionStringBuilder builder = new ConnectionStringBuilder(connectionString);
-            ConnectionFactory f = SBJmsConnectionFactory.create(builder);
+            ServiceBusJmsConnectionFactorySettings settings = new ServiceBusJmsConnectionFactorySettings(120000, true);
+            ConnectionFactory f = SBJmsConnectionFactory.create(builder, settings);
             
             connection = f.createConnection();
             connection.start();
